@@ -151,6 +151,7 @@ function preloadAll() {
   Object.values(bgImgs).forEach(p => loadImg(p));
   loadImg('images/ui/truck_1.png');
   loadImg('images/faces/blur_idle.png');
+  loadImg('images/drag_hand.png'); // 拖拽手
 
   // 预加载音效
   loadAudio('audio/click.mp3');
@@ -386,7 +387,15 @@ function renderGame() {
   // 垃圾（非拖拽）
   items.forEach(t => { if (t.vis && !t.set && t !== drag) drawTrashItem(t, false); });
   // 拖拽中的垃圾
-  if (drag) drawTrashItem(drag, true);
+  if (drag) {
+    drawTrashItem(drag, true);
+    // 手覆盖在垃圾上方
+    const handImg = imgCache['images/drag_hand.png'];
+    if (handImg && handImg.loaded) {
+      const handW = 36, handH = 36;
+      ctx.drawImage(handImg, drag.x + drag.w / 2 - handW / 2, drag.y - handH + 8, handW, handH);
+    }
+  }
 
   // 飘字
   anims.forEach(a => {
