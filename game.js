@@ -569,7 +569,7 @@ function handleClick(x, y) {
       }
     }
   } else if (state === 'playing') {
-    if (x > C.W - 50 && y < 35) { state = 'paused'; }
+    if (x > C.W - 50 && y < 35) { state = 'paused'; stopAudio('audio/bgm.mp3'); }
   } else if (state === 'paused') {
     const cx = C.W / 2;
     if (x > cx - 100 && x < cx + 100) {
