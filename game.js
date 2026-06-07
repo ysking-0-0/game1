@@ -155,12 +155,12 @@ function preloadAll() {
 
   // 预加载音效
   loadAudio('audio/click.mp3');
-  loadAudio('audio/correct.mp3');
-  loadAudio('audio/wrong.mp3');
+  loadAudio('audio/correct_new.mp3');   // 正确分类音效
+  loadAudio('audio/wrong_new.mp3');     // 错误分类音效
   loadAudio('audio/combo.mp3');
   loadAudio('audio/win.mp3');
   loadAudio('audio/lose.mp3');
-  loadAudio('audio/bgm.mp3');
+  loadAudio('audio/bgm.mp4');           // 背景音乐 (Shinin Harbor)
 }
 preloadAll();
 
@@ -468,13 +468,13 @@ function checkDrop(t, b) {
     anims.push({t: `+${s}`, x: t.x, y: t.y, c: '#4CAF50', fs: 18, o: 1});
     if (combo >= 3) anims.push({t: `${combo}连击!`, x: t.x + 20, y: t.y - 20, c: '#FF9800', fs: 14, o: 1});
     binHL[b.id] = .5;
-    playAudio('audio/correct.mp3');
+    playAudio('audio/correct_new.mp3');
     try { wx.vibrateShort({ type: 'light' }); } catch(e) {}
   } else {
     combo = 0; wrng++; score -= 5;
     expr = wrng >= 2 ? 'angry' : 'wrong'; exprT = 1.5;
     anims.push({t: '-5', x: t.x, y: t.y, c: '#F44336', fs: 18, o: 1});
-    playAudio('audio/wrong.mp3');
+    playAudio('audio/wrong_new.mp3');
     try { wx.vibrateShort({ type: 'heavy' }); } catch(e) {}
   }
   t.vis = false; t.set = true; remain--;
@@ -486,7 +486,7 @@ function checkDrop(t, b) {
 
 function gameOver(w) {
   state = w ? 'win' : 'lose';
-  stopAudio('audio/bgm.mp3');
+  stopAudio('audio/bgm.mp4');
   playAudio(w ? 'audio/win.mp3' : 'audio/lose.mp3');
   try { wx.vibrateLong(); } catch(e) {}
   if (w && lv >= unlocked) {
@@ -568,11 +568,11 @@ function handleClick(x, y) {
       }
     }
   } else if (state === 'playing') {
-    if (x > C.W - 50 && y < 75) { state = 'paused'; stopAudio('audio/bgm.mp3'); }
+    if (x > C.W - 50 && y < 75) { state = 'paused'; stopAudio('audio/bgm.mp4'); }
   } else if (state === 'paused') {
     const cx = C.W / 2;
     if (x > cx - 100 && x < cx + 100) {
-      if (y > 310 && y < 350) { state = 'playing'; lastTs = Date.now(); playAudio('audio/bgm.mp3', true); }
+      if (y > 310 && y < 350) { state = 'playing'; lastTs = Date.now(); playAudio('audio/bgm.mp4', true); }
       if (y > 365 && y < 405) initLv(lv);
       if (y > 420 && y < 460) { state = 'home'; homeView = 'main'; }
     }
