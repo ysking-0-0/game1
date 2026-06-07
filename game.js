@@ -57,16 +57,17 @@ const trashData = [
   {id:'t31',name:'脏抹布',cat:'dry',img:'images/trash/dry_9.png'}
 ];
 
-// ===================== 表情映射 =====================
+// ===================== 表情映射（虚化处理后的人物表情） =====================
 const exprImgs = {
-  correct: 'images/expressions/expr_3.png',
-  combo:   'images/expressions/expr_8.png',
-  wrong:   'images/expressions/expr_1.png',
-  angry:   'images/expressions/expr_5.png',
-  shocked: 'images/expressions/expr_2.png',
-  confused:'images/expressions/expr_6.png',
-  win:     'images/expressions/expr_8.png',
-  lose:    'images/expressions/expr_4.png'
+  correct:  'images/faces/blur_correct.png',   // 03-开心愉悦（抿嘴微笑）
+  combo:    'images/faces/blur_combo.png',     // 08-开怀大笑（张嘴大笑）
+  wrong:    'images/faces/blur_wrong.png',     // 01-委屈难过（眼角有泪）
+  angry:    'images/faces/blur_angry.png',     // 05-愤怒暴躁（眉头紧皱）
+  shocked:  'images/faces/blur_shocked.png',   // 02-震惊受惊（瞪眼张嘴）
+  confused: 'images/faces/blur_confused.png',  // 06-疑惑困惑（歪头问号）
+  win:      'images/faces/blur_win.png',       // 09-俏皮得意（眨眼挥手）
+  lose:     'images/faces/blur_lose.png',      // 04-嚎啕大哭（泪流满面）
+  idle:     'images/faces/blur_idle.png'       // 07-无奈沮丧（叹气摊手）
 };
 
 // ===================== 背景图映射 =====================
@@ -149,7 +150,7 @@ function preloadAll() {
   Object.values(exprImgs).forEach(p => loadImg(p));
   Object.values(bgImgs).forEach(p => loadImg(p));
   loadImg('images/ui/truck_1.png');
-  loadImg('images/expressions/expr_3.png');
+  loadImg('images/faces/blur_idle.png');
 
   // 预加载音效
   loadAudio('audio/click.mp3');
@@ -210,7 +211,7 @@ function initLv(id) {
   const l = levels.find(ll => ll.id === id);
   if (!l) return;
   lv = id; totalT = l.t; score = 0; combo = 0; maxCombo = 0; corr = 0; wrng = 0; elapsed = 0;
-  anims = []; binHL = {}; state = 'playing'; lastTs = 0; // 0 = 首帧标记，loop 中会用 rAF 时间戳初始化
+  anims = []; binHL = {}; state = 'playing'; expr = 'correct'; exprT = 0; lastTs = 0;
   const list = getTrash(l.n);
   items = list.map((t, i) => {
     const cols = 4, col = i % cols, row = i / cols | 0;
@@ -339,8 +340,8 @@ function renderGame() {
     ctx.font = '18px Arial'; ctx.textAlign = 'center'; ctx.fillText('🚚', bx + bw * p, by + bh / 2 + 6);
   }
 
-  // 终点人物
-  const endImg = imgCache['images/expressions/expr_3.png'];
+  // 终点人物（默认表情）
+  const endImg = imgCache['images/faces/blur_idle.png'];
   if (endImg && endImg.loaded) {
     ctx.drawImage(endImg, bx + bw + 5, by - 2, 28, 28);
   } else {
@@ -451,7 +452,7 @@ function checkDrop(t, b) {
   if (t.cat === b.id) {
     combo++; maxCombo = Math.max(maxCombo, combo); corr++;
     const s = 10 + Math.max(0, combo - 1) * 5; score += s;
-    expr = combo >= 3 ? 'combo' : 'correct'; exprT = 1.5;
+    expr = combo >= 5 ? 'shocked' : combo >= 3 ? 'combo' : 'correct'; exprT = 1.5;
     anims.push({t: `+${s}`, x: t.x, y: t.y, c: '#4CAF50', fs: 18, o: 1});
     if (combo >= 3) anims.push({t: `${combo}连击!`, x: t.x + 20, y: t.y - 20, c: '#FF9800', fs: 14, o: 1});
     binHL[b.id] = .5;
@@ -596,6 +597,18 @@ function loop(ts) {
         if (exprT > 0) exprT -= dt;
         anims = anims.filter(a => { a.y -= 60 * (dt || 0.016); a.o -= (dt || 0.016); return a.o > 0; });
         Object.keys(binHL).forEach(k => { binHL[k] -= (dt || 0.016); if (binHL[k] <= 0) delete binHL[k]; });
+
+        // 时间紧迫时切换表情（仅在无其他表情时）
+        if (exprT <= 0) {
+          const remainTime = totalT - elapsed;
+          if (remainTime <= 10) {
+            expr = 'shocked'; // 最后10秒 → 震惊
+          } else if (remainTime / totalT < 0.25) {
+            expr = 'confused'; // 不足25%时间 → 疑惑
+          } else {
+            expr = 'correct'; // 时间充裕 → 默认开心
+          }
+        }
       }
     }
     renderGame();
