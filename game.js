@@ -360,8 +360,8 @@ function renderGame() {
     ctx.font = '16px Arial'; ctx.fillText(endEmoji[endKey] || '😐', bx + bw + 18, by + bh / 2 + 5);
   }
 
-  // 暂停按钮
-  ctx.font = '22px Arial'; ctx.textAlign = 'right'; ctx.fillText('⏸️', C.W - 12, 60);
+  // 暂停按钮（右上角最顶部，不被微信菜单遮挡）
+  ctx.fillStyle = '#FFF'; ctx.font = 'bold 20px Arial'; ctx.textAlign = 'right'; ctx.fillText('⏸', C.W - 10, 22);
 
   // 表情（整体下移）
   const exprSrc = exprImgs[expr] || exprImgs.correct;
@@ -486,7 +486,7 @@ function checkDrop(t, b) {
 
 function gameOver(w) {
   state = w ? 'win' : 'lose';
-  stopAudio('audio/bgm.mp3');
+  // BGM 持续播放，不中断
   playAudio(w ? 'audio/win.mp3' : 'audio/lose.mp3');
   try { wx.vibrateLong(); } catch(e) {}
   if (w && lv >= unlocked) {
@@ -568,26 +568,26 @@ function handleClick(x, y) {
       }
     }
   } else if (state === 'playing') {
-    if (x > C.W - 50 && y < 75) { state = 'paused'; stopAudio('audio/bgm.mp3'); }
+    if (x > C.W - 50 && y < 35) { state = 'paused'; }
   } else if (state === 'paused') {
     const cx = C.W / 2;
     if (x > cx - 100 && x < cx + 100) {
       if (y > 310 && y < 350) { state = 'playing'; lastTs = Date.now(); playAudio('audio/bgm.mp3', true); }
       if (y > 365 && y < 405) initLv(lv);
-      if (y > 420 && y < 460) { state = 'home'; homeView = 'main'; }
+      if (y > 420 && y < 460) { state = 'home'; homeView = 'main'; stopAudio('audio/bgm.mp3'); }
     }
   } else if (state === 'win') {
     const cx = C.W / 2;
     if (x > cx - 100 && x < cx + 100) {
       if (y > 385 && y < 425 && lv < 9) initLv(lv + 1);
       if (y > 435 && y < 475) initLv(lv);
-      if (y > 485 && y < 525) { state = 'home'; homeView = 'main'; }
+      if (y > 485 && y < 525) { state = 'home'; homeView = 'main'; stopAudio('audio/bgm.mp3'); }
     }
   } else if (state === 'lose') {
     const cx = C.W / 2;
     if (x > cx - 100 && x < cx + 100) {
       if (y > 380 && y < 420) initLv(lv);
-      if (y > 435 && y < 475) { state = 'home'; homeView = 'main'; }
+      if (y > 435 && y < 475) { state = 'home'; homeView = 'main'; stopAudio('audio/bgm.mp3'); }
     }
   }
 }
