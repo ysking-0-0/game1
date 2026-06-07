@@ -379,10 +379,6 @@ function renderGame() {
       card(dx, dy, dw, dh, b.cat.color, hl ? '#FFD700' : 'rgba(0,0,0,0.2)');
       ctx.font = '24px Arial'; ctx.textAlign = 'center'; ctx.fillText('🗑️', dx + dw / 2, dy + dh / 2 + 4);
     }
-    if (hl) {
-      ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 3;
-      ctx.strokeRect(dx - 2, dy - 2, dw + 4, dh + 4);
-    }
     ctx.fillStyle = '#FFF'; ctx.font = 'bold 11px "Microsoft YaHei"'; ctx.textAlign = 'center';
     ctx.fillText(b.cat.name, b.x + b.w / 2, b.y + b.h + 14);
   });
