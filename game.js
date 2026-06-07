@@ -169,7 +169,7 @@ let unlocked = 1;
 let lv = 1, score = 0, combo = 0, maxCombo = 0, corr = 0, wrng = 0;
 let totalT = 60, elapsed = 0, lastTs = 0;
 let items = [], remain = 0, drag = null, offX = 0, offY = 0;
-let bins = [], expr = 'correct', exprT = 0, anims = [], binHL = {};
+let bins = [], expr = 'confused', exprT = 0, anims = [], binHL = {};
 
 // 加载解锁进度
 try {
@@ -211,7 +211,7 @@ function initLv(id) {
   const l = levels.find(ll => ll.id === id);
   if (!l) return;
   lv = id; totalT = l.t; score = 0; combo = 0; maxCombo = 0; corr = 0; wrng = 0; elapsed = 0;
-  anims = []; binHL = {}; state = 'playing'; expr = 'correct'; exprT = 0; lastTs = 0;
+  anims = []; binHL = {}; state = 'playing'; expr = 'confused'; exprT = 0; lastTs = 0;
   const list = getTrash(l.n);
   items = list.map((t, i) => {
     const cols = 4, col = i % cols, row = i / cols | 0;
@@ -606,7 +606,7 @@ function loop(ts) {
           } else if (remainTime / totalT < 0.25) {
             expr = 'confused'; // 不足25%时间 → 疑惑
           } else {
-            expr = 'correct'; // 时间充裕 → 默认开心
+            expr = 'confused'; // 时间充裕 → 思考中（等待分类）
           }
         }
       }
