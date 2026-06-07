@@ -213,6 +213,7 @@ function initLv(id) {
   if (!l) return;
   lv = id; totalT = l.t; score = 0; combo = 0; maxCombo = 0; corr = 0; wrng = 0; elapsed = 0;
   anims = []; binHL = {}; state = 'playing'; expr = 'confused'; exprT = 0; lastTs = 0;
+  playAudio('audio/bgm.mp3', true); // 开始/重开关卡时启动 BGM
   const list = getTrash(l.n);
   items = list.map((t, i) => {
     const cols = 4, col = i % cols, row = i / cols | 0;
