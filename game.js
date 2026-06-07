@@ -142,6 +142,18 @@ function stopAudio(src) {
     try { a.stop(); } catch(e) {}
   }
 }
+function pauseAudio(src) {
+  const a = audioCache[src];
+  if (a) {
+    try { a.pause(); } catch(e) {}
+  }
+}
+function resumeAudio(src) {
+  const a = audioCache[src];
+  if (a) {
+    try { a.play(); } catch(e) {}
+  }
+}
 
 // ===================== 预加载 =====================
 function preloadAll() {
@@ -569,11 +581,11 @@ function handleClick(x, y) {
       }
     }
   } else if (state === 'playing') {
-    if (x > C.W - 50 && y < 35) { state = 'paused'; stopAudio('audio/bgm.mp3'); }
+    if (x > C.W - 50 && y < 35) { state = 'paused'; pauseAudio('audio/bgm.mp3'); }
   } else if (state === 'paused') {
     const cx = C.W / 2;
     if (x > cx - 100 && x < cx + 100) {
-      if (y > 310 && y < 350) { state = 'playing'; lastTs = Date.now(); playAudio('audio/bgm.mp3', true); }
+      if (y > 310 && y < 350) { state = 'playing'; lastTs = Date.now(); resumeAudio('audio/bgm.mp3'); }
       if (y > 365 && y < 405) initLv(lv);
       if (y > 420 && y < 460) { state = 'home'; homeView = 'main'; stopAudio('audio/bgm.mp3'); }
     }
