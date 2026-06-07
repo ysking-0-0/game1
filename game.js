@@ -5,7 +5,7 @@
 'use strict';
 
 // ===================== 常量 =====================
-const C = { W: 375, H: 667, bins: { y: 110, w: 60, h: 72, gap: 6 }, trash: { topY: 240, bottomY: 610, size: 62 } };
+const C = { W: 375, H: 667, bins: { y: 140, w: 60, h: 72, gap: 6 }, trash: { topY: 270, bottomY: 620, size: 62 } };
 
 // ===================== 分类定义 =====================
 const cats = [
@@ -310,52 +310,62 @@ function renderGame() {
   ctx.fillStyle = 'rgba(255,255,255,0.45)';
   ctx.fillRect(0, 0, C.W, C.H);
 
-  // 顶部半透明遮罩
+  // 顶部半透明遮罩（整体下移避开微信菜单栏）
   ctx.fillStyle = 'rgba(0,0,0,0.35)';
-  ctx.fillRect(0, 0, C.W, 75);
+  ctx.fillRect(0, 35, C.W, 75);
 
   // 关卡 + 分数
   ctx.fillStyle = '#FFF'; ctx.font = 'bold 16px "Microsoft YaHei"'; ctx.textAlign = 'left';
-  ctx.fillText(`第${lv}关`, 12, 22);
-  ctx.textAlign = 'center'; ctx.fillText(`⭐${score}分`, C.W / 2, 22);
+  ctx.fillText(`第${lv}关`, 12, 57);
+  ctx.textAlign = 'center'; ctx.fillText(`⭐${score}分`, C.W / 2, 57);
 
-  // 进度条
+  // 进度条（一条线，垃圾车在上面行驶）
   const p = Math.min(elapsed / totalT, 1);
-  const bx = 15, bw = C.W - 80, by = 35, bh = 22;
-  ctx.fillStyle = 'rgba(255,255,255,0.3)'; rr(bx, by, bw, bh, 6); ctx.fill();
-  let bc = '#4CAF50'; if (p > .6) bc = '#FF9800'; if (p > .8) bc = '#F44336';
-  if (bw * p > 0) { ctx.save(); rr(bx, by, bw * p, bh, 6); ctx.fillStyle = bc; ctx.fill(); ctx.restore(); }
+  const bx = 15, bw = C.W - 80, by = 70, bh = 22;
 
-  // 垃圾车
+  // 道路线（灰色底）
+  const roadY = by + bh / 2;
+  ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+  ctx.beginPath(); ctx.moveTo(bx, roadY); ctx.lineTo(bx + bw, roadY); ctx.stroke();
+
+  // 已行驶路段（红色）
+  if (bw * p > 0) {
+    ctx.strokeStyle = '#F44336'; ctx.lineWidth = 4; ctx.lineCap = 'round';
+    ctx.beginPath(); ctx.moveTo(bx, roadY); ctx.lineTo(bx + bw * p, roadY); ctx.stroke();
+  }
+
+  // 垃圾车在进度线末端
   const truckW = 40, truckH = 28;
   const truckX = bx + bw * p - truckW;
   const truckImg = imgCache['images/ui/truck_1.png'];
   if (truckImg && truckImg.loaded) {
     ctx.save();
-    ctx.translate(truckX + truckW / 2, by + bh / 2);
+    ctx.translate(truckX + truckW / 2, roadY);
     ctx.scale(-1, 1);
     ctx.drawImage(truckImg, -truckW / 2, -truckH / 2, truckW, truckH);
     ctx.restore();
   } else {
-    ctx.font = '18px Arial'; ctx.textAlign = 'center'; ctx.fillText('🚚', bx + bw * p, by + bh / 2 + 6);
+    ctx.font = '18px Arial'; ctx.textAlign = 'center'; ctx.fillText('🚚', bx + bw * p, roadY + 2);
   }
 
-  // 终点人物（默认表情）
-  const endImg = imgCache['images/faces/blur_idle.png'];
+  // 终点人物（3/4进度→震惊，到达终点→大哭）
+  const endKey = p >= 1 ? 'lose' : p >= 0.75 ? 'shocked' : 'idle';
+  const endImg = imgCache[exprImgs[endKey]];
   if (endImg && endImg.loaded) {
-    ctx.drawImage(endImg, bx + bw + 5, by - 2, 28, 28);
+    ctx.drawImage(endImg, bx + bw + 5, by - 2, 30, 30);
   } else {
-    ctx.font = '16px Arial'; ctx.fillText('😊', bx + bw + 18, by + bh / 2 + 5);
+    const endEmoji = {idle:'😐',shocked:'😱',lose:'😭'};
+    ctx.font = '16px Arial'; ctx.fillText(endEmoji[endKey] || '😐', bx + bw + 18, by + bh / 2 + 5);
   }
 
   // 暂停按钮
-  ctx.font = '22px Arial'; ctx.textAlign = 'right'; ctx.fillText('⏸️', C.W - 12, 25);
+  ctx.font = '22px Arial'; ctx.textAlign = 'right'; ctx.fillText('⏸️', C.W - 12, 60);
 
-  // 表情
+  // 表情（整体下移）
   const exprSrc = exprImgs[expr] || exprImgs.correct;
-  if (!drawImg(exprSrc, C.W - 60, 62, 48, 48)) {
-    const emojiMap = {correct:'😊',combo:'😆',wrong:'😢',angry:'😡',shocked:'😱',win:'😆',lose:'😭'};
-    ctx.font = '36px Arial'; ctx.textAlign = 'center'; ctx.fillText(emojiMap[expr] || '😊', C.W - 36, 100);
+  if (!drawImg(exprSrc, C.W - 60, 97, 48, 48)) {
+    const emojiMap = {correct:'😊',combo:'😆',wrong:'😢',angry:'😡',shocked:'😱',win:'😆',lose:'😭',confused:'🤔',idle:'😐'};
+    ctx.font = '36px Arial'; ctx.textAlign = 'center'; ctx.fillText(emojiMap[expr] || '😊', C.W - 36, 135);
   }
 
   // 垃圾桶
@@ -556,7 +566,7 @@ function handleClick(x, y) {
       }
     }
   } else if (state === 'playing') {
-    if (x > C.W - 50 && y < 40) { state = 'paused'; stopAudio('audio/bgm.mp3'); }
+    if (x > C.W - 50 && y < 75) { state = 'paused'; stopAudio('audio/bgm.mp3'); }
   } else if (state === 'paused') {
     const cx = C.W / 2;
     if (x > cx - 100 && x < cx + 100) {
