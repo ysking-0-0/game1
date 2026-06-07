@@ -323,8 +323,23 @@ function renderGame() {
   const p = Math.min(elapsed / totalT, 1);
   const bx = 15, bw = C.W - 80, by = 70, bh = 22;
 
-  // 道路线（灰色底）
-  const roadY = by + bh / 2;
+  // 垃圾车（在线上方行驶，车底与线间距 2px）
+  const truckW = 40, truckH = 28;
+  const truckX = bx + bw * p - truckW;
+  const truckCenterY = by + bh / 2 - truckH / 2 - 2; // 车底离道路线 2px
+  const truckImg = imgCache['images/ui/truck_1.png'];
+  if (truckImg && truckImg.loaded) {
+    ctx.save();
+    ctx.translate(truckX + truckW / 2, truckCenterY + truckH / 2);
+    ctx.scale(-1, 1);
+    ctx.drawImage(truckImg, -truckW / 2, -truckH / 2, truckW, truckH);
+    ctx.restore();
+  } else {
+    ctx.font = '18px Arial'; ctx.textAlign = 'center'; ctx.fillText('🚚', bx + bw * p, truckCenterY + truckH / 2 + 2);
+  }
+
+  // 道路线（垃圾车下方 2px）
+  const roadY = truckCenterY + truckH + 2;
   ctx.strokeStyle = 'rgba(255,255,255,0.4)'; ctx.lineWidth = 4; ctx.lineCap = 'round';
   ctx.beginPath(); ctx.moveTo(bx, roadY); ctx.lineTo(bx + bw, roadY); ctx.stroke();
 
@@ -332,20 +347,6 @@ function renderGame() {
   if (bw * p > 0) {
     ctx.strokeStyle = '#F44336'; ctx.lineWidth = 4; ctx.lineCap = 'round';
     ctx.beginPath(); ctx.moveTo(bx, roadY); ctx.lineTo(bx + bw * p, roadY); ctx.stroke();
-  }
-
-  // 垃圾车在进度线末端
-  const truckW = 40, truckH = 28;
-  const truckX = bx + bw * p - truckW;
-  const truckImg = imgCache['images/ui/truck_1.png'];
-  if (truckImg && truckImg.loaded) {
-    ctx.save();
-    ctx.translate(truckX + truckW / 2, roadY);
-    ctx.scale(-1, 1);
-    ctx.drawImage(truckImg, -truckW / 2, -truckH / 2, truckW, truckH);
-    ctx.restore();
-  } else {
-    ctx.font = '18px Arial'; ctx.textAlign = 'center'; ctx.fillText('🚚', bx + bw * p, roadY + 2);
   }
 
   // 终点人物（3/4进度→震惊，到达终点→大哭）
@@ -409,10 +410,6 @@ function drawTrashItem(t, dragging) {
     const emojiFallback = { 'recyclable':'♻️','wet':'🍎','harmful':'🔋','dry':'🗑️','other':'🟢' };
     ctx.font = '28px Arial'; ctx.textAlign = 'center';
     ctx.fillText(emojiFallback[t.cat] || '🗑️', t.x + t.w / 2, t.y + t.h / 2 + 4);
-  }
-  if (dragging) {
-    ctx.strokeStyle = '#FFD700'; ctx.lineWidth = 2;
-    ctx.strokeRect(t.x - 2, t.y - 2, t.w + 4, t.h + 4);
   }
   ctx.fillStyle = '#333'; ctx.font = 'bold 9px "Microsoft YaHei"'; ctx.textAlign = 'center';
   ctx.fillText(t.name, t.x + t.w / 2, t.y + t.h + 8);
