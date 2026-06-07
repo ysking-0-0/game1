@@ -110,25 +110,36 @@ function loadAudio(src) {
   if (audioCache[src]) return audioCache[src];
   try {
     const audio = wx.createInnerAudioContext();
+    audio.onError((err) => {
+      // 静默处理音频解码错误（MP3 格式不兼容等）
+      console.warn('[Audio] decode fail:', src, err.errMsg || '');
+    });
     audio.src = src;
     audioCache[src] = audio;
     return audio;
   } catch(e) {
-    console.warn('[VisualEye] audio create fail:', src);
+    console.warn('[Audio] create fail:', src, e.message || '');
+    audioCache[src] = null;
     return null;
   }
 }
 function playAudio(src, loop) {
   const a = audioCache[src];
   if (a) {
-    a.stop();
-    if (loop) a.loop = true;
-    a.play();
+    try {
+      a.stop();
+      if (loop) a.loop = true;
+      a.play();
+    } catch(e) {
+      // 音频播放失败不阻塞游戏
+    }
   }
 }
 function stopAudio(src) {
   const a = audioCache[src];
-  if (a) a.stop();
+  if (a) {
+    try { a.stop(); } catch(e) {}
+  }
 }
 
 // ===================== 预加载 =====================
@@ -199,7 +210,7 @@ function initLv(id) {
   const l = levels.find(ll => ll.id === id);
   if (!l) return;
   lv = id; totalT = l.t; score = 0; combo = 0; maxCombo = 0; corr = 0; wrng = 0; elapsed = 0;
-  anims = []; binHL = {}; state = 'playing'; lastTs = Date.now();
+  anims = []; binHL = {}; state = 'playing'; lastTs = 0; // 0 = 首帧标记，loop 中会用 rAF 时间戳初始化
   const list = getTrash(l.n);
   items = list.map((t, i) => {
     const cols = 4, col = i % cols, row = i / cols | 0;
@@ -475,10 +486,17 @@ function gameOver(w) {
 
 let ts0 = null, dr = false;
 
+// 坐标转换比例（触摸坐标是屏幕坐标 → 转为画布逻辑坐标）
+const touchScaleX = C.W / screenW;
+const touchScaleY = C.H / screenH;
+
 function gtouch(e) {
-  // wx.onTouchStart 等回调中，e.touches[0] 包含 clientX/clientY（逻辑坐标）
+  // wx.onTouchStart 返回屏幕坐标（CSS像素），需转换为画布逻辑坐标
   const t = e.touches[0];
-  return { x: t.clientX, y: t.clientY };
+  return {
+    x: t.clientX * touchScaleX,
+    y: t.clientY * touchScaleY
+  };
 }
 
 wx.onTouchStart(function(e) {
@@ -569,12 +587,16 @@ function loop(ts) {
     renderHome();
   } else {
     if (state === 'playing') {
-      const dt = (ts - lastTs) / 1000; lastTs = ts;
-      elapsed += dt;
-      if (elapsed >= totalT) { gameOver(score >= 0 && remain <= 0); }
-      if (exprT > 0) exprT -= dt;
-      anims = anims.filter(a => { a.y -= 60 * (dt || 0.016); a.o -= (dt || 0.016); return a.o > 0; });
-      Object.keys(binHL).forEach(k => { binHL[k] -= (dt || 0.016); if (binHL[k] <= 0) delete binHL[k]; });
+      if (lastTs === 0) {
+        lastTs = ts; // 首帧仅初始化时间戳，不计算 dt
+      } else {
+        const dt = (ts - lastTs) / 1000; lastTs = ts;
+        elapsed += dt;
+        if (elapsed >= totalT) { gameOver(score >= 0 && remain <= 0); }
+        if (exprT > 0) exprT -= dt;
+        anims = anims.filter(a => { a.y -= 60 * (dt || 0.016); a.o -= (dt || 0.016); return a.o > 0; });
+        Object.keys(binHL).forEach(k => { binHL[k] -= (dt || 0.016); if (binHL[k] <= 0) delete binHL[k]; });
+      }
     }
     renderGame();
   }
