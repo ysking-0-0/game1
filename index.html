@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>垃圾分类大作战</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #1a1a2e;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Microsoft YaHei', sans-serif;
+      overflow: hidden;
+    }
+    #gameContainer {
+      position: relative;
+      width: 375px;
+      height: 667px;
+      overflow: hidden;
+      border-radius: 12px;
+      box-shadow: 0 0 30px rgba(0,0,0,0.5);
+    }
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      touch-action: none;
+    }
+  </style>
+</head>
+<body>
+  <div id="gameContainer">
+    <canvas id="gameCanvas"></canvas>
+  </div>
+<script>
+const C = { W: 375, H: 667, bins: { y: 110, w: 60, h: 72, gap: 6 }, trash: { topY: 240, bottomY: 610, size: 56 } };
+
+const cats = [
+  { id: 'recyclable', name: '可回收', color: '#2196F3', img: 'images/bins/recyclable.png' },
+  { id: 'wet',        name: '湿垃圾', color: '#8B4513', img: 'images/bins/wet.png' },
+  { id: 'harmful',    name: '有害',   color: '#F44336', img: 'images/bins/harmful.png' },
+  { id: 'dry',        name: '干垃圾', color: '#9E9E9E', img: 'images/bins/dry.png' },
+  { id: 'other',      name: '其他',   color: '#2E7D32', img: 'images/bins/other.png' }
+];
+
+const levels = [
+  {id:1,n:5,t:60},{id:2,n:8,t:60},{id:3,n:10,t:50},{id:4,n:12,t:50},
+  {id:5,n:15,t:45},{id:6,n:15,t:40},{id:7,n:18,t:40},{id:8,n:20,t:35},{id:9,n:20,t:30}
+];
+
+const trashData = [
+  {id:'t01',name:'塑料瓶',cat:'recyclable',img:'images/trash/塑料瓶1.png'},
+  {id:'t02',name:'旧T恤',cat:'recyclable',img:'images/trash/旧T恤1.png'},
+  {id:'t03',name:'杂志',cat:'recyclable',img:'images/trash/杂志1.png'},
+  {id:'t04',name:'牛奶盒',cat:'recyclable',img:'images/trash/牛奶盒1.png'},
+  {id:'t05',name:'玻璃瓶',cat:'recyclable',img:'images/trash/玻璃瓶1.png'},
+  {id:'t06',name:'纸团',cat:'recyclable',img:'images/trash/纸团1.jpg'},
+  {id:'t07',name:'纸盒',cat:'recyclable',img:'images/trash/纸盒.png'},
+  {id:'t08',name:'运动鞋',cat:'recyclable',img:'images/trash/运动鞋1.png'},
+  {id:'t09',name:'发霉菜叶',cat:'wet',img:'images/trash/发霉菜叶.png'},
+  {id:'t10',name:'变质糊状物',cat:'wet',img:'images/trash/变质糊状物.png'},
+  {id:'t11',name:'坏鸡蛋',cat:'wet',img:'images/trash/坏鸡蛋.png'},
+  {id:'t12',name:'玉米',cat:'wet',img:'images/trash/玉米.jpg'},
+  {id:'t13',name:'腐烂番茄',cat:'wet',img:'images/trash/腐烂番茄.png'},
+  {id:'t14',name:'西瓜皮',cat:'wet',img:'images/trash/西瓜皮.png'},
+  {id:'t15',name:'馊米饭',cat:'wet',img:'images/trash/馊米饭.png'},
+  {id:'t16',name:'龙虾残骸',cat:'wet',img:'images/trash/龙虾残骸.png'},
+  {id:'t17',name:'废灯泡',cat:'harmful',img:'images/trash/废节能灯泡.png'},
+  {id:'t18',name:'温度计',cat:'harmful',img:'images/trash/损坏的温度计.jpg'},
+  {id:'t19',name:'杀虫剂',cat:'harmful',img:'images/trash/过期杀虫剂.jpg'},
+  {id:'t20',name:'过期电池',cat:'harmful',img:'images/trash/过期电池.png'},
+  {id:'t21',name:'过期药',cat:'harmful',img:'images/trash/过期药.png'},
+  {id:'t22',name:'颜料桶',cat:'harmful',img:'images/trash/颜料桶.png'},
+  {id:'t23',name:'口香糖',cat:'dry',img:'images/trash/口香糖.png'},
+  {id:'t24',name:'骨头',cat:'dry',img:'images/trash/啃咬骨头.png'},
+  {id:'t25',name:'带肉骨头',cat:'dry',img:'images/trash/带肉骨头.png'},
+  {id:'t26',name:'毛发',cat:'dry',img:'images/trash/毛发污垢.png'},
+  {id:'t27',name:'脏勺子',cat:'dry',img:'images/trash/沾污勺子.png'},
+  {id:'t28',name:'烟蒂',cat:'dry',img:'images/trash/烟蒂.png'},
+  {id:'t29',name:'碎瓷片',cat:'dry',img:'images/trash/碎瓷片.png'},
+  {id:'t30',name:'脏手套',cat:'dry',img:'images/trash/脏手套.png'},
+  {id:'t31',name:'脏抹布',cat:'dry',img:'images/trash/脏抹布.png'}
+];
+
+// 表情图片映射
+const exprImgs = {
+  correct: 'images/expressions/03-happy.png',
+  combo:   'images/expressions/08-laugh.png',
+  wrong:   'images/expressions/01-sad.png',
+  angry:   'images/expressions/05-angry.png',
+  shocked: 'images/expressions/02-shocked.png',
+  confused:'images/expressions/06-confused.png',
+  win:     'images/expressions/08-laugh.png',
+  lose:    'images/expressions/04-cry.png'
+};
+
+const canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+canvas.width = C.W; canvas.height = C.H;
+
+// 预加载图片
+const imgCache = {};
+function loadImg(src) {
+  if (imgCache[src]) return imgCache[src];
+  const img = new Image();
+  img.src = src;
+  img.onload = () => { img.loaded = true; };
+  imgCache[src] = img;
+  return img;
+}
+// 预加载所有资源
+function preloadAll() {
+  cats.forEach(c => loadImg(c.img));
+  trashData.forEach(t => loadImg(t.img));
+  Object.values(exprImgs).forEach(p => loadImg(p));
+  loadImg('images/backgrounds/bg1.png');
+  loadImg('images/backgrounds/bg2.png');
+  loadImg('images/backgrounds/bg3.png');
+  loadImg('images/backgrounds/bg4.png');
+  loadImg('images/backgrounds/bg5.png');
+  loadImg('images/backgrounds/bg6.png');
+  loadImg('images/backgrounds/bg7.png');
+  loadImg('images/backgrounds/bg8.png');
+  loadImg('images/backgrounds/bg9.png');
+}
+loadImg('images/ui/truck.png');
+loadImg('images/expressions/03-happy.png');
+preloadAll();
+
+// 背景图映射
+const bgImgs = {
+  1:'images/backgrounds/bg1.png', 2:'images/backgrounds/bg2.png',
+  3:'images/backgrounds/bg3.png', 4:'images/backgrounds/bg4.png',
+  5:'images/backgrounds/bg5.png', 6:'images/backgrounds/bg6.png',
+  7:'images/backgrounds/bg7.png', 8:'images/backgrounds/bg8.png',
+  9:'images/backgrounds/bg9.png'
+};
+
+let state='home', homeView='main', unlocked=parseInt(localStorage.getItem('ul')||'1');
+let lv=1, score=0, combo=0, maxCombo=0, corr=0, wrng=0;
+let totalT=60, elapsed=0, lastTs=0;
+let items=[], remain=0, drag=null, offX=0, offY=0;
+let bins=[], expr='correct', exprT=0, anims=[], binHL={};
+
+function getTrash(n) {
+  const cs=['recyclable','wet','harmful','dry'], r=[];
+  cs.forEach(c => { const s=trashData.filter(t=>t.cat===c); if(s.length) r.push(s[Math.random()*s.length|0]); });
+  while(r.length < n) {
+    const t = trashData[Math.random()*trashData.length|0];
+    r.push({...t, id: t.id+'_'+r.length});
+  }
+  return r.sort(()=>Math.random()-.5).slice(0,n);
+}
+
+function calcBins() {
+  const tw = cats.length*C.bins.w + (cats.length-1)*C.bins.gap;
+  const sx = (C.W - tw)/2;
+  bins = cats.map((c,i) => ({
+    id: c.id, cat: c,
+    x: sx + i*(C.bins.w+C.bins.gap),
+    y: C.bins.y, w: C.bins.w, h: C.bins.h,
+    hl: false
+  }));
+}
+
+function initLv(id) {
+  const l = levels.find(l=>l.id===id);
+  if(!l) return;
+  lv=id; totalT=l.t; score=0; combo=0; maxCombo=0; corr=0; wrng=0; elapsed=0;
+  anims=[]; binHL={}; state='playing'; lastTs=performance.now();
+  const list = getTrash(l.n);
+  items = list.map((t,i) => {
+    const cols=4, col=i%cols, row=i/cols|0;
+    const sp=(C.W-60)/cols, vs=(C.trash.bottomY-C.trash.topY)/Math.ceil(list.length/cols);
+    return {
+      ...t,
+      x: 30+col*sp+(Math.random()-.5)*15,
+      y: C.trash.topY+row*vs+(Math.random()-.5)*10,
+      w: C.trash.size, h: C.trash.size,
+      vis: true, set: false
+    };
+  });
+  remain = items.length;
+  calcBins();
+}
+
+// 绘图工具
+function rr(x,y,w,h,r) {
+  ctx.beginPath();
+  ctx.moveTo(x+r,y); ctx.lineTo(x+w-r,y);
+  ctx.quadraticCurveTo(x+w,y,x+w,y+r); ctx.lineTo(x+w,y+h-r);
+  ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h); ctx.lineTo(x+r,y+h);
+  ctx.quadraticCurveTo(x,y+h,x,y+h-r); ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y); ctx.closePath();
+}
+function card(x,y,w,h,bg,bd) {
+  ctx.save(); rr(x,y,w,h,8);
+  ctx.fillStyle=bg||'#FFF'; ctx.fill();
+  ctx.strokeStyle=bd||'#DDD'; ctx.lineWidth=1.5; ctx.stroke();
+  ctx.restore();
+}
+function btn(txt,x,y,w,h,c,fs) {
+  ctx.save(); rr(x,y,w,h,8);
+  ctx.fillStyle=c; ctx.fill();
+  ctx.fillStyle='#FFF'; ctx.font=`bold ${fs||16}px "Microsoft YaHei"`;
+  ctx.textAlign='center'; ctx.fillText(txt,x+w/2,y+h/2+6);
+  ctx.restore();
+}
+function inR(px,py,r) { return px>=r.x && px<=r.x+r.w && py>=r.y && py<=r.y+r.h; }
+
+function drawImg(src, x, y, w, h) {
+  const img = imgCache[src];
+  if (img && img.loaded) {
+    ctx.drawImage(img, x, y, w, h);
+    return true;
+  }
+  return false;
+}
+
+function renderHome() {
+  const g=ctx.createLinearGradient(0,0,0,C.H);
+  g.addColorStop(0,'#667eea'); g.addColorStop(1,'#764ba2');
+  ctx.fillStyle=g; ctx.fillRect(0,0,C.W,C.H);
+
+  if(homeView==='main') {
+    ctx.fillStyle='#FFF'; ctx.font='bold 32px "Microsoft YaHei"'; ctx.textAlign='center';
+    ctx.fillText('垃圾分类',C.W/2,130);
+    ctx.font='bold 26px "Microsoft YaHei"'; ctx.fillText('大作战',C.W/2,165);
+    // 展示垃圾桶图片
+    const binW=50, binH=60, totalBinW=5*binW+4*8, binSx=(C.W-totalBinW)/2;
+    cats.forEach((c,i)=>{
+      drawImg(c.img, binSx+i*(binW+8), 195, binW, binH);
+    });
+    btn('🎮 开始游戏',C.W/2-110,310,220,45,'#4CAF50');
+    btn('📋 关卡选择',C.W/2-110,375,220,45,'#2196F3');
+  } else {
+    ctx.fillStyle='#FFF'; ctx.font='bold 26px "Microsoft YaHei"'; ctx.textAlign='center';
+    ctx.fillText('关卡选择',C.W/2,90);
+    btn('← 返回',20,30,70,32,'#666',12);
+    for(let i=0;i<9;i++) {
+      const c=i%3, r=i/3|0;
+      const bx=C.W/2-135+c*90, by=130+r*90;
+      const ok = i+1<=unlocked;
+      card(bx,by,70,70,ok?'#4CAF50':'#888',ok?'#388E3C':'#666');
+      ctx.fillStyle='#FFF'; ctx.font='bold 22px "Microsoft YaHei"'; ctx.textAlign='center';
+      ctx.fillText(ok?`${i+1}`:'🔒',bx+35,by+44);
+    }
+  }
+}
+
+function renderGame() {
+  // 背景图
+  const bgSrc = bgImgs[lv];
+  if(!drawImg(bgSrc, 0, 0, C.W, C.H)) {
+    const g=ctx.createLinearGradient(0,0,0,C.H);
+    g.addColorStop(0,'#87CEEB'); g.addColorStop(1,'#90EE90');
+    ctx.fillStyle=g; ctx.fillRect(0,0,C.W,C.H);
+  }
+
+  // 顶部半透明遮罩
+  ctx.fillStyle='rgba(0,0,0,0.35)';
+  ctx.fillRect(0,0,C.W,75);
+
+  // 关卡+分数
+  ctx.fillStyle='#FFF'; ctx.font='bold 16px "Microsoft YaHei"'; ctx.textAlign='left';
+  ctx.fillText(`第${lv}关`,12,22);
+  ctx.textAlign='center'; ctx.fillText(`⭐${score}分`,C.W/2,22);
+
+  // 进度条
+  const p=Math.min(elapsed/totalT,1);
+  const bx=15, bw=C.W-80, by=35, bh=22;
+  ctx.fillStyle='rgba(255,255,255,0.3)'; rr(bx,by,bw,bh,6); ctx.fill();
+  let bc='#4CAF50'; if(p>.6)bc='#FF9800'; if(p>.8)bc='#F44336';
+  if(bw*p>0){ctx.save();rr(bx,by,bw*p,bh,6);ctx.fillStyle=bc;ctx.fill();ctx.restore()}
+  // 垃圾车（真实素材，车头朝右）
+  const truckW=40, truckH=28;
+  const truckX=bx+bw*p-truckW;
+  const truckImg=imgCache['images/ui/truck.png'];
+  if(truckImg && truckImg.loaded) {
+    ctx.save();
+    ctx.translate(truckX+truckW/2, by+bh/2);
+    ctx.scale(-1,1); // 水平翻转，让车头朝右
+    ctx.drawImage(truckImg, -truckW/2, -truckH/2, truckW, truckH);
+    ctx.restore();
+  } else {
+    ctx.font='18px Arial';ctx.textAlign='center';ctx.fillText('🚚',bx+bw*p,by+bh/2+6);
+  }
+  // 终点：人物头像（普通表情）
+  const endImg=imgCache['images/expressions/03-happy.png'];
+  if(endImg && endImg.loaded) {
+    ctx.drawImage(endImg, bx+bw+5, by-2, 28, 28);
+  } else {
+    ctx.font='16px Arial';ctx.fillText('😊',bx+bw+18,by+bh/2+5);
+  }
+
+  // 暂停按钮
+  ctx.font='22px Arial';ctx.textAlign='right';ctx.fillText('⏸️',C.W-12,25);
+
+  // 表情（用真实图片）
+  const exprSrc = exprImgs[expr] || exprImgs.correct;
+  if(!drawImg(exprSrc, C.W-60, 62, 48, 48)) {
+    // fallback emoji
+    const emojiMap = {correct:'😊',combo:'😆',wrong:'😢',angry:'😡',shocked:'😱',win:'😆',lose:'😭'};
+    ctx.font='36px Arial';ctx.textAlign='center';ctx.fillText(emojiMap[expr]||'😊',C.W-36,100);
+  }
+
+  // 垃圾桶（用真实图片）
+  bins.forEach(b => {
+    const hl=binHL[b.id]>0, sc=hl?1.15:1;
+    const dw=b.w*sc, dh=b.h*sc;
+    const dx=b.x-(dw-b.w)/2, dy=b.y-(dh-b.h)/2;
+
+    if(!drawImg(b.cat.img, dx, dy, dw, dh)) {
+      card(dx,dy,dw,dh,b.cat.color,hl?'#FFD700':'rgba(0,0,0,0.2)');
+      ctx.font='24px Arial';ctx.textAlign='center';ctx.fillText(b.cat.icon||'🗑️',dx+dw/2,dy+dh/2+4);
+    }
+    if(hl) {
+      ctx.strokeStyle='#FFD700'; ctx.lineWidth=3;
+      ctx.strokeRect(dx-2, dy-2, dw+4, dh+4);
+    }
+    ctx.fillStyle='#FFF'; ctx.font='bold 11px "Microsoft YaHei"'; ctx.textAlign='center';
+    ctx.fillText(b.cat.name, b.x+b.w/2, b.y+b.h+14);
+  });
+
+  // 垃圾（用真实图片+白色卡片）
+  items.forEach(t => { if(t.vis && !t.set && t!==drag) drawTrashItem(t, false); });
+  if(drag) drawTrashItem(drag, true);
+
+  // 飘字动画
+  anims.forEach(a => {
+    ctx.globalAlpha=Math.max(0,a.o);
+    ctx.fillStyle=a.c; ctx.font=`bold ${a.fs}px "Microsoft YaHei"`; ctx.textAlign='center';
+    ctx.fillText(a.t, a.x, a.y);
+    ctx.globalAlpha=1;
+  });
+
+  if(state==='paused') renderPause();
+  if(state==='win') renderWin();
+  if(state==='lose') renderLose();
+}
+
+function drawTrashItem(t, dragging) {
+  const p=5;
+  // 白色圆角卡片
+  card(t.x-p, t.y-p, t.w+p*2, t.h+p*2,
+    dragging?'rgba(255,255,255,0.95)':'rgba(255,255,255,0.88)',
+    dragging?'#FFD700':'#CCC');
+
+  // 真实图片
+  if(!drawImg(t.img, t.x, t.y, t.w, t.h)) {
+    // fallback：emoji
+    const emojiFallback = {
+      'recyclable':'♻️','wet':'🍎','harmful':'🔋','dry':'🗑️','other':'🟢'
+    };
+    ctx.font='28px Arial';ctx.textAlign='center';
+    ctx.fillText(emojiFallback[t.cat]||'🗑️', t.x+t.w/2, t.y+t.h/2+4);
+  }
+
+  // 名称标签
+  ctx.fillStyle='#333'; ctx.font='bold 9px "Microsoft YaHei"'; ctx.textAlign='center';
+  ctx.fillText(t.name, t.x+t.w/2, t.y+t.h+8);
+}
+
+function renderPause() {
+  ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(0,0,C.W,C.H);
+  ctx.fillStyle='#FFF'; ctx.font='bold 28px "Microsoft YaHei"'; ctx.textAlign='center';
+  ctx.fillText('⏸️ 暂停中',C.W/2,260);
+  btn('▶️ 继续游戏',C.W/2-100,310,200,40,'#4CAF50');
+  btn('🔄 重新开始',C.W/2-100,365,200,40,'#FF9800');
+  btn('🏠 返回主页',C.W/2-100,420,200,40,'#666');
+}
+
+function renderWin() {
+  ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(0,0,C.W,C.H);
+  // 表情
+  drawImg(exprImgs.win, C.W/2-30, 130, 60, 60);
+  ctx.fillStyle='#FFF'; ctx.font='bold 28px "Microsoft YaHei"'; ctx.textAlign='center';
+  ctx.fillText('🎉 恭喜过关！',C.W/2,220);
+  const acc=corr+wrng>0?Math.round(corr/(corr+wrng)*100):0;
+  ctx.font='18px "Microsoft YaHei"';
+  ctx.fillText(`⭐ 得分：${score}分`,C.W/2,260);
+  ctx.fillText(`🎯 正确率：${acc}%`,C.W/2,285);
+  ctx.fillText(`🔥 最高连击：${maxCombo}`,C.W/2,310);
+  ctx.font='32px Arial';
+  ctx.fillText(acc>=90?'⭐⭐⭐':acc>=70?'⭐⭐':'⭐',C.W/2,350);
+  if(lv<9) btn('▶️ 下一关',C.W/2-100,385,200,40,'#4CAF50');
+  btn('🔄 再玩一次',C.W/2-100,435,200,40,'#FF9800');
+  btn('🏠 返回主页',C.W/2-100,485,200,40,'#666');
+}
+
+function renderLose() {
+  ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(0,0,C.W,C.H);
+  drawImg(exprImgs.lose, C.W/2-30, 180, 60, 60);
+  ctx.fillStyle='#FFF'; ctx.font='bold 28px "Microsoft YaHei"'; ctx.textAlign='center';
+  ctx.fillText('😢 挑战失败',C.W/2,270);
+  ctx.font='18px "Microsoft YaHei"';
+  ctx.fillText(`⭐ 得分：${score}分`,C.W/2,310);
+  ctx.fillText(`🎯 正确率：${corr+wrng>0?Math.round(corr/(corr+wrng)*100):0}%`,C.W/2,335);
+  btn('🔄 再试一次',C.W/2-100,380,200,40,'#F44336');
+  btn('🏠 返回主页',C.W/2-100,435,200,40,'#666');
+}
+
+// 游戏逻辑
+function checkDrop(t, b) {
+  if(t.cat === b.id) {
+    combo++; maxCombo=Math.max(maxCombo,combo); corr++;
+    const s=10+Math.max(0,combo-1)*5; score+=s;
+    expr=combo>=3?'combo':'correct'; exprT=1.5;
+    anims.push({t:`+${s}`,x:t.x,y:t.y,c:'#4CAF50',fs:18,o:1});
+    if(combo>=3) anims.push({t:`${combo}连击!`,x:t.x+20,y:t.y-20,c:'#FF9800',fs:14,o:1});
+    binHL[b.id]=.5;
+    if(navigator.vibrate) navigator.vibrate(50);
+  } else {
+    combo=0; wrng++; score-=5;
+    expr=wrng>=2?'angry':'wrong'; exprT=1.5;
+    anims.push({t:'-5',x:t.x,y:t.y,c:'#F44336',fs:18,o:1});
+    if(navigator.vibrate) navigator.vibrate([100,50,100]);
+  }
+  t.vis=false; t.set=true; remain--;
+
+  // 检查是否所有垃圾都投完了
+  if(remain <= 0) {
+    gameOver(score >= 0);
+  }
+}
+
+function gameOver(w) {
+  state = w ? 'win' : 'lose';
+  if(w && lv >= unlocked) {
+    unlocked = lv + 1;
+    localStorage.setItem('ul', unlocked);
+  }
+}
+
+// 触摸处理
+let ts0=null, dr=false;
+function gtp(e) {
+  const r=canvas.getBoundingClientRect(), t=e.touches?e.touches[0]:e;
+  return { x:(t.clientX-r.left)*(C.W/r.width), y:(t.clientY-r.top)*(C.H/r.height) };
+}
+
+canvas.addEventListener('touchstart', e => {
+  e.preventDefault(); const p=gtp(e); ts0=p; dr=false;
+  if(state==='playing') {
+    for(let i=items.length-1;i>=0;i--) {
+      const t=items[i];
+      if(t.vis && !t.set && inR(p.x,p.y,{x:t.x,y:t.y,w:t.w,h:t.h})) {
+        drag=t; offX=p.x-t.x; offY=p.y-t.y; break;
+      }
+    }
+  }
+}, {passive:false});
+
+canvas.addEventListener('touchmove', e => {
+  e.preventDefault(); const p=gtp(e);
+  if(!dr && ts0) { const dx=p.x-ts0.x, dy=p.y-ts0.y; if(Math.sqrt(dx*dx+dy*dy)>8) dr=true; }
+  if(dr && drag) {
+    drag.x=p.x-offX; drag.y=p.y-offY;
+    bins.forEach(b => {
+      const cx=b.x+b.w/2, cy=b.y+b.h/2;
+      b.hl = Math.sqrt((p.x-cx)**2+(p.y-cy)**2) < 65;
+    });
+  }
+}, {passive:false});
+
+canvas.addEventListener('touchend', e => {
+  e.preventDefault();
+  if(dr && drag) {
+    bins.forEach(b => { if(b.hl) checkDrop(drag, b); });
+    drag=null; bins.forEach(b=>b.hl=false);
+  } else if(ts0) {
+    handleClick(ts0.x, ts0.y);
+  }
+  ts0=null; dr=false; drag=null;
+}, {passive:false});
+
+canvas.addEventListener('mousedown', e => {
+  const p=gtp(e); ts0=p; dr=false;
+  if(state==='playing') {
+    for(let i=items.length-1;i>=0;i--) {
+      const t=items[i];
+      if(t.vis && !t.set && inR(p.x,p.y,{x:t.x,y:t.y,w:t.w,h:t.h})) {
+        drag=t; offX=p.x-t.x; offY=p.y-t.y; break;
+      }
+    }
+  }
+});
+canvas.addEventListener('mousemove', e => {
+  if(!drag) return;
+  const p=gtp(e); dr=true;
+  drag.x=p.x-offX; drag.y=p.y-offY;
+  bins.forEach(b => {
+    const cx=b.x+b.w/2, cy=b.y+b.h/2;
+    b.hl = Math.sqrt((p.x-cx)**2+(p.y-cy)**2) < 65;
+  });
+});
+canvas.addEventListener('mouseup', e => {
+  const p=gtp(e);
+  if(dr && drag) {
+    bins.forEach(b => { if(b.hl) checkDrop(drag, b); });
+    drag=null; bins.forEach(b=>b.hl=false);
+  } else handleClick(p.x, p.y);
+  ts0=null; dr=false; drag=null;
+});
+
+function handleClick(x, y) {
+  if(state==='home') {
+    if(homeView==='main') {
+      if(x>C.W/2-110 && x<C.W/2+110) {
+        if(y>310 && y<355) initLv(unlocked);
+        if(y>375 && y<420) homeView='levels';
+      }
+    } else {
+      if(x>20 && x<90 && y>30 && y<62) { homeView='main'; return; }
+      for(let i=0;i<9;i++) {
+        const c=i%3, r=i/3|0, bx=C.W/2-135+c*90, by=130+r*90;
+        if(x>bx && x<bx+70 && y>by && y<by+70 && i+1<=unlocked) initLv(i+1);
+      }
+    }
+  } else if(state==='playing') {
+    if(x>C.W-50 && y<40) state='paused';
+  } else if(state==='paused') {
+    const cx=C.W/2;
+    if(x>cx-100 && x<cx+100) {
+      if(y>310 && y<350) { state='playing'; lastTs=performance.now(); }
+      if(y>365 && y<405) initLv(lv);
+      if(y>420 && y<460) { state='home'; homeView='main'; }
+    }
+  } else if(state==='win') {
+    const cx=C.W/2;
+    if(x>cx-100 && x<cx+100) {
+      if(y>385 && y<425 && lv<9) initLv(lv+1);
+      if(y>435 && y<475) initLv(lv);
+      if(y>485 && y<525) { state='home'; homeView='main'; }
+    }
+  } else if(state==='lose') {
+    const cx=C.W/2;
+    if(x>cx-100 && x<cx+100) {
+      if(y>380 && y<420) initLv(lv);
+      if(y>435 && y<475) { state='home'; homeView='main'; }
+    }
+  }
+}
+
+function loop(ts) {
+  ctx.clearRect(0,0,C.W,C.H);
+  if(state==='home') {
+    renderHome();
+  } else {
+    if(state==='playing') {
+      const dt=(ts-lastTs)/1000; lastTs=ts;
+      elapsed+=dt;
+      // 时间到了也结束
+      if(elapsed>=totalT) { gameOver(score>=0 && remain<=0); }
+      if(exprT>0) exprT-=dt;
+      anims=anims.filter(a=>{ a.y-=60*(dt||0.016); a.o-=(dt||0.016); return a.o>0; });
+      Object.keys(binHL).forEach(k=>{ binHL[k]-=(dt||0.016); if(binHL[k]<=0) delete binHL[k]; });
+    }
+    renderGame();
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+</script>
+</body>
+</html>
