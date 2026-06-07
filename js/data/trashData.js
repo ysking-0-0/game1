@@ -1,49 +1,46 @@
 /**
  * 垃圾数据 - 每种垃圾对应的分类
- * category: recyclable(可回收), wet(湿垃圾), harmful(有害), dry(干垃圾), other(其他)
+ * 使用去掉背景后的素材
  */
 const trashData = [
   // 可回收垃圾
-  { id: 't01', name: '塑料瓶',  category: 'recyclable', image: 'trash/塑料瓶1.png' },
-  { id: 't02', name: '旧T恤',   category: 'recyclable', image: 'trash/旧T恤1.png' },
-  { id: 't03', name: '杂志',    category: 'recyclable', image: 'trash/杂志1.png' },
-  { id: 't04', name: '牛奶盒',  category: 'recyclable', image: 'trash/牛奶盒1.png' },
-  { id: 't05', name: '玻璃瓶',  category: 'recyclable', image: 'trash/玻璃瓶1.png' },
-  { id: 't06', name: '纸团',    category: 'recyclable', image: 'trash/纸团1.jpg' },
-  { id: 't07', name: '纸盒',    category: 'recyclable', image: 'trash/纸盒.png' },
-  { id: 't08', name: '运动鞋',  category: 'recyclable', image: 'trash/运动鞋1.png' },
+  { id: 't01', name: '塑料瓶',  category: 'recyclable', image: 'images/trash/recyclable_1.png' },
+  { id: 't02', name: '旧T恤',   category: 'recyclable', image: 'images/trash/recyclable_2.png' },
+  { id: 't03', name: '杂志',    category: 'recyclable', image: 'images/trash/recyclable_3.png' },
+  { id: 't04', name: '牛奶盒',  category: 'recyclable', image: 'images/trash/recyclable_4.png' },
+  { id: 't05', name: '玻璃瓶',  category: 'recyclable', image: 'images/trash/recyclable_5.png' },
+  { id: 't06', name: '纸团',    category: 'recyclable', image: 'images/trash/recyclable_6.png' },
+  { id: 't07', name: '纸盒',    category: 'recyclable', image: 'images/trash/recyclable_7.png' },
+  { id: 't08', name: '运动鞋',  category: 'recyclable', image: 'images/trash/recyclable_8.png' },
+  { id: 't09', name: '塑料袋',  category: 'recyclable', image: 'images/trash/recyclable_9.png' },
 
   // 湿垃圾
-  { id: 't09', name: '发霉菜叶', category: 'wet', image: 'trash/发霉菜叶.png' },
-  { id: 't10', name: '变质糊状物', category: 'wet', image: 'trash/变质糊状物.png' },
-  { id: 't11', name: '坏鸡蛋',  category: 'wet', image: 'trash/坏鸡蛋.png' },
-  { id: 't12', name: '玉米',    category: 'wet', image: 'trash/玉米.jpg' },
-  { id: 't13', name: '腐烂番茄', category: 'wet', image: 'trash/腐烂番茄.png' },
-  { id: 't14', name: '西瓜皮',  category: 'wet', image: 'trash/西瓜皮.png' },
-  { id: 't15', name: '馊米饭',  category: 'wet', image: 'trash/馊米饭.png' },
-  { id: 't16', name: '龙虾残骸', category: 'wet', image: 'trash/龙虾残骸.png' },
+  { id: 't10', name: '发霉菜叶', category: 'wet', image: 'images/trash/wet_1.png' },
+  { id: 't11', name: '变质糊状物', category: 'wet', image: 'images/trash/wet_2.png' },
+  { id: 't12', name: '坏鸡蛋',  category: 'wet', image: 'images/trash/wet_3.png' },
+  { id: 't13', name: '玉米',    category: 'wet', image: 'images/trash/wet_4.png' },
+  { id: 't14', name: '腐烂番茄', category: 'wet', image: 'images/trash/wet_5.png' },
+  { id: 't15', name: '西瓜皮',  category: 'wet', image: 'images/trash/wet_6.png' },
+  { id: 't16', name: '馊米饭',  category: 'wet', image: 'images/trash/wet_7.png' },
 
   // 有害垃圾
-  { id: 't17', name: '废节能灯泡', category: 'harmful', image: 'trash/废节能灯泡.png' },
-  { id: 't18', name: '损坏温度计', category: 'harmful', image: 'trash/损坏的温度计.jpg' },
-  { id: 't19', name: '过期杀虫剂', category: 'harmful', image: 'trash/过期杀虫剂.jpg' },
-  { id: 't20', name: '过期电池', category: 'harmful', image: 'trash/过期电池.png' },
-  { id: 't21', name: '过期药',  category: 'harmful', image: 'trash/过期药.png' },
-  { id: 't22', name: '颜料桶',  category: 'harmful', image: 'trash/颜料桶.png' },
+  { id: 't17', name: '废节能灯泡', category: 'harmful', image: 'images/trash/harmful_1.png' },
+  { id: 't18', name: '损坏温度计', category: 'harmful', image: 'images/trash/harmful_2.png' },
+  { id: 't19', name: '过期杀虫剂', category: 'harmful', image: 'images/trash/harmful_3.png' },
+  { id: 't20', name: '过期电池', category: 'harmful', image: 'images/trash/harmful_4.png' },
+  { id: 't21', name: '过期药',  category: 'harmful', image: 'images/trash/harmful_5.png' },
+  { id: 't22', name: '颜料桶',  category: 'harmful', image: 'images/trash/harmful_6.png' },
 
   // 干垃圾
-  { id: 't23', name: '口香糖',  category: 'dry', image: 'trash/口香糖.png' },
-  { id: 't24', name: '啃咬骨头', category: 'dry', image: 'trash/啃咬骨头.png' },
-  { id: 't25', name: '带肉骨头', category: 'dry', image: 'trash/带肉骨头.png' },
-  { id: 't26', name: '毛发污垢', category: 'dry', image: 'trash/毛发污垢.png' },
-  { id: 't27', name: '沾污勺子', category: 'dry', image: 'trash/沾污勺子.png' },
-  { id: 't28', name: '烟蒂',    category: 'dry', image: 'trash/烟蒂.png' },
-  { id: 't29', name: '碎瓷片',  category: 'dry', image: 'trash/碎瓷片.png' },
-  { id: 't30', name: '脏手套',  category: 'dry', image: 'trash/脏手套.png' },
-  { id: 't31', name: '脏抹布',  category: 'dry', image: 'trash/脏抹布.png' },
-
-  // 其他垃圾（暂无素材，可用干垃圾中的作为补充）
-  // 如有其他垃圾素材可在此添加
+  { id: 't23', name: '口香糖',  category: 'dry', image: 'images/trash/dry_1.png' },
+  { id: 't24', name: '啃咬骨头', category: 'dry', image: 'images/trash/dry_2.png' },
+  { id: 't25', name: '带肉骨头', category: 'dry', image: 'images/trash/dry_3.png' },
+  { id: 't26', name: '毛发污垢', category: 'dry', image: 'images/trash/dry_4.png' },
+  { id: 't27', name: '沾污勺子', category: 'dry', image: 'images/trash/dry_5.png' },
+  { id: 't28', name: '烟蒂',    category: 'dry', image: 'images/trash/dry_6.png' },
+  { id: 't29', name: '碎瓷片',  category: 'dry', image: 'images/trash/dry_7.png' },
+  { id: 't30', name: '脏手套',  category: 'dry', image: 'images/trash/dry_8.png' },
+  { id: 't31', name: '脏抹布',  category: 'dry', image: 'images/trash/dry_9.png' },
 ];
 
 /**
@@ -80,19 +77,16 @@ function getTrashForLevel(count) {
   const remaining = count - result.length;
   if (remaining > 0) {
     const extra = getRandomTrash(remaining);
-    // 避免重复
     extra.forEach(item => {
       if (!result.find(r => r.id === item.id)) {
         result.push(item);
       }
     });
-    // 如果还不够，允许重复
     while (result.length < count) {
       result.push(trashData[Math.floor(Math.random() * trashData.length)]);
     }
   }
 
-  // 打乱顺序
   return result.sort(() => Math.random() - 0.5).slice(0, count);
 }
 

@@ -36,14 +36,14 @@
     <canvas id="gameCanvas"></canvas>
   </div>
 <script>
-const C = { W: 375, H: 667, bins: { y: 110, w: 60, h: 72, gap: 6 }, trash: { topY: 240, bottomY: 610, size: 56 } };
+const C = { W: 375, H: 667, bins: { y: 110, w: 60, h: 72, gap: 6 }, trash: { topY: 240, bottomY: 610, size: 62 } };
 
 const cats = [
-  { id: 'recyclable', name: '可回收', color: '#2196F3', img: 'images/bins/recyclable.png' },
-  { id: 'wet',        name: '湿垃圾', color: '#8B4513', img: 'images/bins/wet.png' },
-  { id: 'harmful',    name: '有害',   color: '#F44336', img: 'images/bins/harmful.png' },
-  { id: 'dry',        name: '干垃圾', color: '#9E9E9E', img: 'images/bins/dry.png' },
-  { id: 'other',      name: '其他',   color: '#2E7D32', img: 'images/bins/other.png' }
+  { id: 'recyclable', name: '可回收', color: '#2196F3', img: 'images/bins/bin_1.png' },
+  { id: 'wet',        name: '湿垃圾', color: '#8B4513', img: 'images/bins/bin_2.png' },
+  { id: 'harmful',    name: '有害',   color: '#F44336', img: 'images/bins/bin_3.png' },
+  { id: 'dry',        name: '干垃圾', color: '#9E9E9E', img: 'images/bins/bin_4.png' },
+  { id: 'other',      name: '其他',   color: '#2E7D32', img: 'images/bins/bin_5.png' }
 ];
 
 const levels = [
@@ -52,49 +52,49 @@ const levels = [
 ];
 
 const trashData = [
-  {id:'t01',name:'塑料瓶',cat:'recyclable',img:'images/trash/塑料瓶1.png'},
-  {id:'t02',name:'旧T恤',cat:'recyclable',img:'images/trash/旧T恤1.png'},
-  {id:'t03',name:'杂志',cat:'recyclable',img:'images/trash/杂志1.png'},
-  {id:'t04',name:'牛奶盒',cat:'recyclable',img:'images/trash/牛奶盒1.png'},
-  {id:'t05',name:'玻璃瓶',cat:'recyclable',img:'images/trash/玻璃瓶1.png'},
-  {id:'t06',name:'纸团',cat:'recyclable',img:'images/trash/纸团1.jpg'},
-  {id:'t07',name:'纸盒',cat:'recyclable',img:'images/trash/纸盒.png'},
-  {id:'t08',name:'运动鞋',cat:'recyclable',img:'images/trash/运动鞋1.png'},
-  {id:'t09',name:'发霉菜叶',cat:'wet',img:'images/trash/发霉菜叶.png'},
-  {id:'t10',name:'变质糊状物',cat:'wet',img:'images/trash/变质糊状物.png'},
-  {id:'t11',name:'坏鸡蛋',cat:'wet',img:'images/trash/坏鸡蛋.png'},
-  {id:'t12',name:'玉米',cat:'wet',img:'images/trash/玉米.jpg'},
-  {id:'t13',name:'腐烂番茄',cat:'wet',img:'images/trash/腐烂番茄.png'},
-  {id:'t14',name:'西瓜皮',cat:'wet',img:'images/trash/西瓜皮.png'},
-  {id:'t15',name:'馊米饭',cat:'wet',img:'images/trash/馊米饭.png'},
-  {id:'t16',name:'龙虾残骸',cat:'wet',img:'images/trash/龙虾残骸.png'},
-  {id:'t17',name:'废灯泡',cat:'harmful',img:'images/trash/废节能灯泡.png'},
-  {id:'t18',name:'温度计',cat:'harmful',img:'images/trash/损坏的温度计.jpg'},
-  {id:'t19',name:'杀虫剂',cat:'harmful',img:'images/trash/过期杀虫剂.jpg'},
-  {id:'t20',name:'过期电池',cat:'harmful',img:'images/trash/过期电池.png'},
-  {id:'t21',name:'过期药',cat:'harmful',img:'images/trash/过期药.png'},
-  {id:'t22',name:'颜料桶',cat:'harmful',img:'images/trash/颜料桶.png'},
-  {id:'t23',name:'口香糖',cat:'dry',img:'images/trash/口香糖.png'},
-  {id:'t24',name:'骨头',cat:'dry',img:'images/trash/啃咬骨头.png'},
-  {id:'t25',name:'带肉骨头',cat:'dry',img:'images/trash/带肉骨头.png'},
-  {id:'t26',name:'毛发',cat:'dry',img:'images/trash/毛发污垢.png'},
-  {id:'t27',name:'脏勺子',cat:'dry',img:'images/trash/沾污勺子.png'},
-  {id:'t28',name:'烟蒂',cat:'dry',img:'images/trash/烟蒂.png'},
-  {id:'t29',name:'碎瓷片',cat:'dry',img:'images/trash/碎瓷片.png'},
-  {id:'t30',name:'脏手套',cat:'dry',img:'images/trash/脏手套.png'},
-  {id:'t31',name:'脏抹布',cat:'dry',img:'images/trash/脏抹布.png'}
+  {id:'t01',name:'塑料瓶',cat:'recyclable',img:'images/trash/recyclable_1.png'},
+  {id:'t02',name:'旧T恤',cat:'recyclable',img:'images/trash/recyclable_2.png'},
+  {id:'t03',name:'杂志',cat:'recyclable',img:'images/trash/recyclable_3.png'},
+  {id:'t04',name:'牛奶盒',cat:'recyclable',img:'images/trash/recyclable_4.png'},
+  {id:'t05',name:'玻璃瓶',cat:'recyclable',img:'images/trash/recyclable_5.png'},
+  {id:'t06',name:'纸团',cat:'recyclable',img:'images/trash/recyclable_6.png'},
+  {id:'t07',name:'纸盒',cat:'recyclable',img:'images/trash/recyclable_7.png'},
+  {id:'t08',name:'运动鞋',cat:'recyclable',img:'images/trash/recyclable_8.png'},
+  {id:'t09',name:'塑料袋',cat:'recyclable',img:'images/trash/recyclable_9.png'},
+  {id:'t10',name:'发霉菜叶',cat:'wet',img:'images/trash/wet_1.png'},
+  {id:'t11',name:'变质糊状物',cat:'wet',img:'images/trash/wet_2.png'},
+  {id:'t12',name:'坏鸡蛋',cat:'wet',img:'images/trash/wet_3.png'},
+  {id:'t13',name:'玉米',cat:'wet',img:'images/trash/wet_4.png'},
+  {id:'t14',name:'腐烂番茄',cat:'wet',img:'images/trash/wet_5.png'},
+  {id:'t15',name:'西瓜皮',cat:'wet',img:'images/trash/wet_6.png'},
+  {id:'t16',name:'馊米饭',cat:'wet',img:'images/trash/wet_7.png'},
+  {id:'t17',name:'废灯泡',cat:'harmful',img:'images/trash/harmful_1.png'},
+  {id:'t18',name:'温度计',cat:'harmful',img:'images/trash/harmful_2.png'},
+  {id:'t19',name:'杀虫剂',cat:'harmful',img:'images/trash/harmful_3.png'},
+  {id:'t20',name:'过期电池',cat:'harmful',img:'images/trash/harmful_4.png'},
+  {id:'t21',name:'过期药',cat:'harmful',img:'images/trash/harmful_5.png'},
+  {id:'t22',name:'颜料桶',cat:'harmful',img:'images/trash/harmful_6.png'},
+  {id:'t23',name:'口香糖',cat:'dry',img:'images/trash/dry_1.png'},
+  {id:'t24',name:'骨头',cat:'dry',img:'images/trash/dry_2.png'},
+  {id:'t25',name:'带肉骨头',cat:'dry',img:'images/trash/dry_3.png'},
+  {id:'t26',name:'毛发',cat:'dry',img:'images/trash/dry_4.png'},
+  {id:'t27',name:'脏勺子',cat:'dry',img:'images/trash/dry_5.png'},
+  {id:'t28',name:'烟蒂',cat:'dry',img:'images/trash/dry_6.png'},
+  {id:'t29',name:'碎瓷片',cat:'dry',img:'images/trash/dry_7.png'},
+  {id:'t30',name:'脏手套',cat:'dry',img:'images/trash/dry_8.png'},
+  {id:'t31',name:'脏抹布',cat:'dry',img:'images/trash/dry_9.png'}
 ];
 
 // 表情图片映射
 const exprImgs = {
-  correct: 'images/expressions/03-happy.png',
-  combo:   'images/expressions/08-laugh.png',
-  wrong:   'images/expressions/01-sad.png',
-  angry:   'images/expressions/05-angry.png',
-  shocked: 'images/expressions/02-shocked.png',
-  confused:'images/expressions/06-confused.png',
-  win:     'images/expressions/08-laugh.png',
-  lose:    'images/expressions/04-cry.png'
+  correct: 'images/expressions/expr_3.png',
+  combo:   'images/expressions/expr_8.png',
+  wrong:   'images/expressions/expr_1.png',
+  angry:   'images/expressions/expr_5.png',
+  shocked: 'images/expressions/expr_2.png',
+  confused:'images/expressions/expr_6.png',
+  win:     'images/expressions/expr_8.png',
+  lose:    'images/expressions/expr_4.png'
 };
 
 const canvas = document.getElementById('gameCanvas');
@@ -116,27 +116,27 @@ function preloadAll() {
   cats.forEach(c => loadImg(c.img));
   trashData.forEach(t => loadImg(t.img));
   Object.values(exprImgs).forEach(p => loadImg(p));
-  loadImg('images/backgrounds/bg1.png');
-  loadImg('images/backgrounds/bg2.png');
-  loadImg('images/backgrounds/bg3.png');
-  loadImg('images/backgrounds/bg4.png');
-  loadImg('images/backgrounds/bg5.png');
-  loadImg('images/backgrounds/bg6.png');
-  loadImg('images/backgrounds/bg7.png');
-  loadImg('images/backgrounds/bg8.png');
-  loadImg('images/backgrounds/bg9.png');
+  loadImg('images/backgrounds/bg_1.png');
+  loadImg('images/backgrounds/bg_2.png');
+  loadImg('images/backgrounds/bg_3.png');
+  loadImg('images/backgrounds/bg_4.png');
+  loadImg('images/backgrounds/bg_5.png');
+  loadImg('images/backgrounds/bg_6.png');
+  loadImg('images/backgrounds/bg_7.png');
+  loadImg('images/backgrounds/bg_8.png');
+  loadImg('images/backgrounds/bg_9.png');
 }
-loadImg('images/ui/truck.png');
-loadImg('images/expressions/03-happy.png');
+loadImg('images/ui/truck_1.png');
+loadImg('images/expressions/expr_3.png');
 preloadAll();
 
 // 背景图映射
 const bgImgs = {
-  1:'images/backgrounds/bg1.png', 2:'images/backgrounds/bg2.png',
-  3:'images/backgrounds/bg3.png', 4:'images/backgrounds/bg4.png',
-  5:'images/backgrounds/bg5.png', 6:'images/backgrounds/bg6.png',
-  7:'images/backgrounds/bg7.png', 8:'images/backgrounds/bg8.png',
-  9:'images/backgrounds/bg9.png'
+  1:'images/backgrounds/bg_1.png', 2:'images/backgrounds/bg_2.png',
+  3:'images/backgrounds/bg_3.png', 4:'images/backgrounds/bg_4.png',
+  5:'images/backgrounds/bg_5.png', 6:'images/backgrounds/bg_6.png',
+  7:'images/backgrounds/bg_7.png', 8:'images/backgrounds/bg_8.png',
+  9:'images/backgrounds/bg_9.png'
 };
 
 let state='home', homeView='main', unlocked=parseInt(localStorage.getItem('ul')||'1');
@@ -259,6 +259,9 @@ function renderGame() {
     g.addColorStop(0,'#87CEEB'); g.addColorStop(1,'#90EE90');
     ctx.fillStyle=g; ctx.fillRect(0,0,C.W,C.H);
   }
+  // 背景淡化遮罩（半透明白色，让背景不那么抢眼）
+  ctx.fillStyle='rgba(255,255,255,0.45)';
+  ctx.fillRect(0,0,C.W,C.H);
 
   // 顶部半透明遮罩
   ctx.fillStyle='rgba(0,0,0,0.35)';
@@ -278,7 +281,7 @@ function renderGame() {
   // 垃圾车（真实素材，车头朝右）
   const truckW=40, truckH=28;
   const truckX=bx+bw*p-truckW;
-  const truckImg=imgCache['images/ui/truck.png'];
+  const truckImg=imgCache['images/ui/truck_1.png'];
   if(truckImg && truckImg.loaded) {
     ctx.save();
     ctx.translate(truckX+truckW/2, by+bh/2);
@@ -289,7 +292,7 @@ function renderGame() {
     ctx.font='18px Arial';ctx.textAlign='center';ctx.fillText('🚚',bx+bw*p,by+bh/2+6);
   }
   // 终点：人物头像（普通表情）
-  const endImg=imgCache['images/expressions/03-happy.png'];
+  const endImg=imgCache['images/expressions/expr_3.png'];
   if(endImg && endImg.loaded) {
     ctx.drawImage(endImg, bx+bw+5, by-2, 28, 28);
   } else {
@@ -343,13 +346,7 @@ function renderGame() {
 }
 
 function drawTrashItem(t, dragging) {
-  const p=5;
-  // 白色圆角卡片
-  card(t.x-p, t.y-p, t.w+p*2, t.h+p*2,
-    dragging?'rgba(255,255,255,0.95)':'rgba(255,255,255,0.88)',
-    dragging?'#FFD700':'#CCC');
-
-  // 真实图片
+  // 直接绘制图片（已有透明背景，无需卡片包裹）
   if(!drawImg(t.img, t.x, t.y, t.w, t.h)) {
     // fallback：emoji
     const emojiFallback = {
@@ -357,6 +354,12 @@ function drawTrashItem(t, dragging) {
     };
     ctx.font='28px Arial';ctx.textAlign='center';
     ctx.fillText(emojiFallback[t.cat]||'🗑️', t.x+t.w/2, t.y+t.h/2+4);
+  }
+
+  // 拖拽时显示边框
+  if(dragging) {
+    ctx.strokeStyle='#FFD700'; ctx.lineWidth=2;
+    ctx.strokeRect(t.x-2, t.y-2, t.w+4, t.h+4);
   }
 
   // 名称标签
